@@ -1,8 +1,9 @@
 class Blob{
   
-  float x, tx = 0, y, ty = 0, radius;
-  float speed = 1.5;
-  
+  float x, tx = 0, y, ty = 0, radius, speed, addmx, addmy, addx, addy;
+  float steeringMult = 0.05; 
+  float foodChaseMult = 0.25;
+  float oldxc = 0, oldyc = 0;
   long babyTime = 0;
   
   float health;
@@ -26,11 +27,11 @@ class Blob{
   
   void move(){
     //Movement with perlin noise
-    x += map(noise(tx), 0, 1, -speed, speed);
-    y += map(noise(ty), 0, 1, -speed, speed);
+    addmx += map(noise(tx), 0, 1, -speed, speed);
+    addmy += map(noise(ty), 0, 1, -speed, speed);
         
-    tx += random(1) / 100;
-    ty += random(2) / 100;
+    tx += (random(1) / 100) % 10000;
+    ty += (random(2) / 100) % 10000;
         
     //Wrap around for borders
     if (x > width + radius) x = 0;
@@ -38,9 +39,42 @@ class Blob{
     if (y > height + radius) y = 0;
     if (y < -radius) y = height;
     
+    followFood();
+  }
+  
+  
+  void followFood(){
     //Stearing movement to reach food
-    //first of all calculate the angle between blob and food using rule of sine
-    println(getNearestFood());
+    //first of all calculate the angle between blob and food using atan2
+    Food f = getNearestFood();
+    if(f != null){
+      float dist = distanceFromFood(f);
+      
+      if(dist < radius * 3){
+        float d = dist * steeringMult;
+        float angle = (((atan2(y - f.y, x - f.x) * 180 / PI) - 90) + 360 ) % 360; 
+        
+        //Divide angle in x and y components
+        float xc = cos(angle) * d;
+        float yc = sin(angle) * d;
+        
+        xc = (xc + oldxc) / 2;
+        yc = (yc + oldyc) / 2;        
+        
+        //Add them to the position
+        x += map(xc, -1 * d, 1 * d, -speed * foodChaseMult, speed * foodChaseMult);
+        y += map(yc, -1 * d, 1 * d, -speed * foodChaseMult, speed * foodChaseMult);
+        
+        oldxc = xc;
+        oldyc = yc;
+        
+        addx = xc + addmx;
+        addy = yc + addmy;
+        
+        x += addx;
+        y += addy;
+      }
+    }
   }
   
   Food getNearestFood(){
@@ -48,7 +82,6 @@ class Blob{
     float d = Float.MAX_VALUE;
     
     for(Food f : foods){
-      println(d);
       if(distanceFromFood(f) < d) {
         d = distanceFromFood(f);
         f1 = f;
@@ -68,6 +101,7 @@ class Blob{
     if(health < 0) {
       blobsDie.add(this);
     }else if(health >= BLOB_REPRODUCE_HEALTH && millis() - babyTime > 4000 && random(1) < 0.45){
+      health /= 2;
       haveBaby();
     }
   }
@@ -96,7 +130,4 @@ class Blob{
     textSize(12);
     text( "H: " + (int)health, x, y - radius);
   }
-    
-    
-  
 }

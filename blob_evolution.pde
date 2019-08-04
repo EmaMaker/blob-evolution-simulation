@@ -70,7 +70,8 @@ void updateBlobs(){
 }
 
 void updateFoods(){
-  
+  if (random(1) < 0.2) addRandomFood();
+
   //Foods update
   for(Food f : foods){
     f.update();
@@ -86,7 +87,6 @@ void updateFoods(){
 void draw(){
   background(50);
   
-  //(random(1) < 0.1) addRandomFood();
   
   updateFoods();
   updateBlobs();
