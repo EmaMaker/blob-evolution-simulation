@@ -6,12 +6,12 @@ import processing.core.PApplet;
 public class Blob {
 
 	float x, y, health, speed;
-	float addx, addy, addmx, addmy, addfx, addfy, oldxc, oldyc, tx, ty, oldx, oldy, distanceTravelled = 0, oldmx, oldmy;
+	float addx, addy, addmx, addmy, addfx, addfy, oldxc, oldyc, tx, ty, oldx, oldy, distanceTravelled = 0, oldrx, oldry;
 	long babyTime = 0, lastMeasure = 0;
 	Food followedFood = null;
 	DNA dna;
 	static Random rand = new Random();
-	
+
 	public Blob(float x_, float y_) {
 		this(x_, y_, Config.BLOB_START_HEALTH);
 	}
@@ -19,7 +19,7 @@ public class Blob {
 	public Blob(float x_, float y_, float health_) {
 		this(x_, y_, health_, setupDNA());
 	}
-	
+
 	public Blob(float x_, float y_, DNA dna_) {
 		this(x_, y_, Config.BLOB_START_HEALTH, dna_);
 	}
@@ -27,15 +27,15 @@ public class Blob {
 	public Blob(float x_, float y_, float health_, DNA dna_) {
 		this.x = x_;
 		this.y = y_;
-		this.oldmx = x_;
-		this.oldmy = y_;
-		
+		this.oldrx = x_;
+		this.oldry = y_;
+
 		this.health = health_;
 		if (dna_ != null)
 			this.dna = dna_;
 		else
 			this.dna = setupDNA();
-		
+
 		if (dna.getGene("radius") <= Config.BLOB_MIN_RADIUS)
 			dna.setGene("radius", Config.BLOB_MIN_RADIUS);
 		if (dna.getGene("radius") >= Config.BLOB_MAX_RADIUS)
@@ -43,7 +43,6 @@ public class Blob {
 
 		tx = Config.MAIN.random(1000);
 		ty = Config.MAIN.random(1000, 10000);
-		
 
 		speed = Config.BLOB_RADIUS_SPEED_RATIO / dna.getGene("radius");
 	}
@@ -62,26 +61,31 @@ public class Blob {
 	void update() {
 		health -= distanceTravelled * 0.025;
 
-		
-		/*Slowly the blobs that stays still for too long, so the moving ones can evolve*/
-		if(System.currentTimeMillis() > lastMeasure + 2000) {
-			if(Math.sqrt(Math.pow(oldmx - x, 2) + Math.pow(oldmy - y, 2)) < dna.getGene("radius") * 3){
-				health *= 0.66;
-				oldmx = x;
-				oldmy = y;
-				lastMeasure = System.currentTimeMillis();
-			}
-		}
-		
-		
+		/*
+		 * Slowly the blobs that stay still for too long, so the moving ones can evolve
+		 */
+//		if(System.currentTimeMillis() > lastMeasure + 2000) {
+//			if(Math.sqrt(Math.pow(oldmx - x, 2) + Math.pow(oldmy - y, 2)) < dna.getGene("radius")){
+//				health *= 0.66;
+//				oldmx = x;
+//				oldmy = y;
+//				lastMeasure = System.currentTimeMillis();
+//			}
+//		}
+
 		if (health < 0) {
 			Config.MAIN.blobsDie.add(this);
 		} else if (health >= Config.BLOB_REPRODUCE_HEALTH
 				&& Config.MAIN.millis() - babyTime > dna.getGene("babyTimeout") && Config.MAIN.random(1) < 0.45) {
+//			if (Math.sqrt(Math.pow(oldrx - x, 2) + Math.pow(oldry - y, 2)) > dna.getGene("radius") * 2) {
+				haveBaby();
+//			}
+
+			oldrx = x;
+			oldry = y;
 			health /= 2;
-			haveBaby();
 		}
-		
+
 	}
 
 	void move() {
@@ -174,6 +178,8 @@ public class Blob {
 			// Adding to the other movement
 			addx = (addmx + addfx) / 2;
 			addy = (addmy + addfy) / 2;
+		} else {
+			followedFood = null;
 		}
 
 	}

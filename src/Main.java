@@ -25,7 +25,10 @@ public class Main extends PApplet {
 
 	public void settings() {
 		Config.MAIN = this;
-		size(600, 600);
+		fullScreen();
+	}
+
+	public void setup() {
 
 		for (int i = 0; i < random(Config.BLOB_MIN_NUMBER, Config.BLOB_MAX_NUMBER); i++) {
 			addRandomBlob();
@@ -34,9 +37,6 @@ public class Main extends PApplet {
 		for (int i = 0; i < random(Config.BLOB_MIN_NUMBER, Config.BLOB_MAX_NUMBER); i++) {
 			addRandomFood();
 		}
-	}
-
-	public void setup() {
 
 	}
 
@@ -159,7 +159,7 @@ public class Main extends PApplet {
 		if (showTips) {
 			text("Use + and - to increase and decrease speed.\n"
 					+ "Use D and F to increase and decrease spawn rate of random food by 0.01 (base at 0.05)\n"
-					+ "R to reset it to 1\n" + "I to hide this menu\n" + "Left Click to add Food\n"
+					+ "R to reset speed to 1\n" + "I to hide this menu\n" + "Left Click to add Food\n"
 					+ "Right Click to add random Blob", width - 25, 50);
 		} else {
 			text("Press I to show tips", width - 25, 50);
