@@ -1,6 +1,8 @@
+
+
 import java.util.ArrayList;
 
-import processing.core.*;
+import processing.core.PApplet;
 
 public class Main extends PApplet {
 
@@ -14,6 +16,8 @@ public class Main extends PApplet {
 	int speedMult = 1;
 	int oldSpeedMult = 0;
 	boolean stopped = false;
+	boolean showTips = false;
+	float foodProb = Config.FOOD_GEN_PROB;
 
 	public static void main(String[] args) {
 		PApplet.main("Main");
@@ -39,7 +43,7 @@ public class Main extends PApplet {
 	public void mousePressed() {
 		if (mouseButton == LEFT) {
 			addFood(mouseX, mouseY, Config.FOOD_MAX_SIDE);
-		} else if(mouseButton == RIGHT) {
+		} else if (mouseButton == RIGHT) {
 			addBlob(mouseX, mouseY, Config.BLOB_START_HEALTH, null);
 		}
 	}
@@ -58,8 +62,15 @@ public class Main extends PApplet {
 			} else {
 				speedMult = oldSpeedMult;
 			}
-		}else if(key == 'r' || key == 'R') {
+		} else if (key == 'r' || key == 'R') {
 			speedMult = 1;
+		} else if (key == 'i' || key == 'I') {
+			showTips = !showTips;
+		} else if (key == 'd' || key == 'D') {
+			if (foodProb > 0.01f)
+				foodProb -= 0.01f;
+		} else if (key == 'f' || key == 'f') {
+			foodProb += 0.01f;
 		}
 	}
 
@@ -67,13 +78,13 @@ public class Main extends PApplet {
 		if (stopped) {
 			background(60);
 			showAll();
-		}else {
+		} else {
 			for (int i = 0; i < 1 * speedMult; i++) {
 				background(60);
 
 				updateBlobs();
 				updateFoods();
-				
+
 				showAll();
 			}
 		}
@@ -99,7 +110,7 @@ public class Main extends PApplet {
 	}
 
 	void updateFoods() {
-		if (random(1) < Config.FOOD_GEN_PROB)
+		if (random(1) < foodProb)
 			addRandomFood();
 
 		for (Food f : foodsEaten) {
@@ -130,23 +141,29 @@ public class Main extends PApplet {
 		showBlobs();
 		showInfo();
 	}
-	
+
 	void showInfo() {
 		stroke(255);
 		fill(0);
 		textSize(16);
 		textAlign(LEFT);
-		text("Total Blobs: " + blobs.size() + "\nTotal Foods: " + foods.size(), 25, 25);
+		text("Total Blobs: " + blobs.size() + "\nTotal Foods: " + foods.size() + "\nRandom Food spawn rate " + foodProb,
+				25, 25);
 
 		textAlign(RIGHT);
 		if (stopped)
 			text("Speed: STOP", width - 100, 25);
 		else
 			text("Speed: " + speedMult, width - 25, 25);
-		text("Use + and - to increase and decrease speed.\n"
-				+ "R to reset it to 1\n"
-				+ "Left Click to add Food\n"
-				+ "Right Click to add random Blob", width - 25, 50);
+
+		if (showTips) {
+			text("Use + and - to increase and decrease speed.\n"
+					+ "Use D and F to increase and decrease spawn rate of random food by 0.01 (base at 0.05)\n"
+					+ "R to reset it to 1\n" + "I to hide this menu\n" + "Left Click to add Food\n"
+					+ "Right Click to add random Blob", width - 25, 50);
+		} else {
+			text("Press I to show tips", width - 25, 50);
+		}
 
 	}
 

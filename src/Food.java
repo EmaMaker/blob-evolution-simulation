@@ -1,3 +1,5 @@
+
+
 public class Food {
 
 	float x, y, side, energy, mass;
