@@ -61,6 +61,9 @@ public class Blob {
 	void update() {
 		health -= distanceTravelled * 0.025;
 
+		// Die because you have to
+		health -= 0.005;
+
 		/*
 		 * Slowly the blobs that stay still for too long, so the moving ones can evolve
 		 */
@@ -78,7 +81,7 @@ public class Blob {
 		} else if (health >= Config.BLOB_REPRODUCE_HEALTH
 				&& Config.MAIN.millis() - babyTime > dna.getGene("babyTimeout") && Config.MAIN.random(1) < 0.45) {
 //			if (Math.sqrt(Math.pow(oldrx - x, 2) + Math.pow(oldry - y, 2)) > dna.getGene("radius") * 2) {
-				haveBaby();
+			haveBaby();
 //			}
 
 			oldrx = x;
@@ -100,6 +103,15 @@ public class Blob {
 		addy = addmy;
 
 		followFood();
+
+		if (addx < -dna.getGene("radius"))
+			addx = -dna.getGene("radius");
+		else if (addx > dna.getGene("radius"))
+			addx = dna.getGene("radius");
+		if (addy < -dna.getGene("radius"))
+			addy = -dna.getGene("radius");
+		else if (addy > dna.getGene("radius"))
+			addy = dna.getGene("radius");
 
 		x += addx;
 		y += addy;
